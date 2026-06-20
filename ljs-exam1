@@ -1,0 +1,65 @@
+#!/bin/bash
+# 姓名拼音：LiuJiaSi
+# 学号：23310107
+# 脚本名称：ljs-exam1
+# 脚本简介：接收正整数参数批量生成指定水果MP3文件，Ctrl+C中断自动清理临时文件
+# 创建时间：2026-06-20
+
+# 学号最后一位7，7%5=2 → lemon
+fruit="lemon"
+# 数组存放本次创建的文件，用于清理
+tmp_files=()
+
+# 清理函数：删除本次生成的所有mp3文件
+clean() {
+    echo -e "\n开始清理本次创建的文件..."
+    for file in "${tmp_files[@]}"; do
+        if [ -f "$file" ]; then
+            rm -f "$file"
+            echo "已删除：$file"
+        fi
+    done
+    read -n 1 -p "按任意键退出程序"
+    exit 0
+}
+
+# 捕获中断信号 Ctrl+C、程序终止信号，触发清理
+trap clean SIGINT SIGTERM SIGHUP
+
+# 参数校验：必须且只能传入1个参数
+if [ $# -ne 1 ]; then
+    echo "错误：必须传入且仅传入1个正整数参数"
+    clean
+fi
+
+num="$1"
+# 判断是否为正整数正则校验
+if ! [[ "$num" =~ ^[1-9][0-9]*$ ]]; then
+    echo "错误：参数必须为大于0的正整数"
+    clean
+fi
+
+# 正式执行逻辑
+echo "LiuJiaSi will create $num files"
+# 脚本所在目录就是ljsgit目录，无需额外cd
+for ((i=1; i<=num; i++)); do
+    filename="${fruit}-${i}.MP3"
+    # 文件不存在才创建
+    if [ ! -f "$filename" ]; then
+        touch "$filename"
+        tmp_files+=("$filename")
+        echo "创建文件：$filename"
+    else
+        echo "$filename 已存在，跳过创建"
+    fi
+done
+
+# 输出结束提示、当前时间T2
+T2=$(date)
+echo "LiuJiaSi fin"
+echo "本次创建的文件列表："
+ls ${fruit}-*.MP3
+echo "当前时间T2：$T2"
+
+read -n 1 -p "按任意键退出程序"
+exit 0
