@@ -1,0 +1,47 @@
+#!/bin/bash
+# 姓名拼音：LiuJiaSi
+# 学号：23310107
+# 脚本名称：ljs-exam2
+# 脚本简介：校验芙蓉学院学号、英文专业名，输出创建用户命令
+# 创建时间：2026-06-20
+
+# 清屏
+clear
+
+# 学号循环校验
+while true; do
+    read -p "请输入芙蓉学院学号：" stu_id
+    # 匹配规则：Z/数字开头，长度足够，排除纯4位短数字、11位手机号、纯字母
+    if [[ "$stu_id" =~ ^[0-9Z][0-9A-Za-z]{6,}$ ]] \
+    && ! [[ "$stu_id" =~ ^[0-9]{4}$ ]] \
+    && ! [[ "$stu_id" =~ ^[0-9]{11}$ ]] \
+    && ! [[ "$stu_id" =~ ^[a-zA-Z]+$ ]]; then
+        break
+    else
+        echo "学号格式错误，请重新输入！"
+    fi
+done
+
+# 专业名校验：仅英文字母
+while true; do
+    read -p "请输入英文专业名：" major
+    if [[ "$major" =~ ^[a-zA-Z]+$ ]]; then
+        break
+    else
+        echo "专业名只能是英文字母，请重新输入！"
+    fi
+done
+
+# 判断用户是否存在，只输出创建命令不执行
+if id -u "$stu_id" >/dev/null 2>&1; then
+    echo "系统用户 $stu_id 已存在"
+else
+    echo "模拟创建用户命令：sudo useradd -G $major $stu_id"
+fi
+
+# 记录输出T3时间
+T3=$(date)
+echo "当前时间T3：$T3"
+
+read -n 1 -p "按任意键结束脚本..."
+exit 0
